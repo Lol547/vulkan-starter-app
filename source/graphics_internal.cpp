@@ -61,7 +61,7 @@ VkCommandBuffer vk_imgui_command_buffer;
 VkFormat selectDepthFormat(VkPhysicalDevice physical_device) {
 	// Prefer the original format and preserve stencil support in the fallback.
 	const VkFormat candidates[] = {
-		VK_FORMAT_D24_UNORM_S8_UINT,
+		VK_FORMAT_D16_UNORM,
 		VK_FORMAT_D32_SFLOAT_S8_UINT,
 	};
 
@@ -463,10 +463,15 @@ bool initialize(GLFWwindow* const window) {
 
 	vkb::SwapchainBuilder sb(vkb_device);
 
-	auto sb_result = sb.use_default_format_selection()
-					   .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
-					   .use_default_image_usage_flags()
-					   .build();
+	int width = 0;
+	int height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+
+	auto sb_result = sb.set_desired_extent(uint32_t(width), uint32_t(height))
+					.use_default_format_selection()
+					.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+					.use_default_image_usage_flags()
+					.build();
 	if (!sb_result) {
 		std::cerr << sb_result.error().message() << '\n';
 		return false;
